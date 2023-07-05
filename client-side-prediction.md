@@ -1,0 +1,92 @@
+<h1><span className="text-primary-dark">.</span>Blog<span className="text-primary-dark">/</span>Implementing Client-side Prediction in Unity<span className="text-primary-dark">/</span></h1>
+
+# Introduction
+
+No competitive multiplayer game would survive nowadays without a proper client-side prediction server authoritative model.
+I will be documenting my experience going from knowing almost nothing about client-side prediction to coming up with what I think is the best way to achieve it in Unity’s new NetCode package for GameObjects, but same methods should apply to any networking solution like Photon or Mirror.
+
+So at that point I had already made three multiplayer games, a chess game, a 1vs1 PVP game, and a first person shooter game similar to Call Of Duty. I used the Photon 2 package for the networking in all of those games.
+
+So I had a general idea of how game netcode works.
+
+# Networking architectures
+
+## Peer-to-Peer
+In the last FPS game I made, I noticed that it is very easy to cheat since it used a Peer-to-Peer **“P2P"** architecture; which means there is one player that is the **host** of the lobby, and the other players are connected as **clients**, all connected to one another and to the host like so:
+
+![Fig 1.0](./images/client-side-prediction-3.png)
+Fig 1.0
+
+The way this works in games is that all players separately run their local games and communicate to each other to synchronize everything, so whenever “Player A” moves, they send their positions to everyone else in the lobby for them to synchronize the new position of “Player A”.
+
+![Fig 1.1](./images/client-side-prediction-2.png)
+Fig 1.1
+
+This architecture would have some serious issues in a competitive game however: 
+
+- Since all players are connected to one another, it wouldn’t be hard to track their IP’s. (That is actually one big reason why people hate GTA Online, it’s because they use P2P connections so it’s not hard to hack other players.)
+- Since “Player A” sends their new position to everyone else in the lobby and they “blindly” trust those positions, it would be very easy for “Player A” to send incorrect positions or to use movement hacks.
+
+## Server-authoritative
+One way to fix those issues is to use a Server-authoritative architecture instead, which means instead of having one player be host and others connect as clients, you would have a dedicated server act as the host and all players are connected to it as clients like so:
+
+![Fig 1.2](./images/client-side-prediction-1.png)
+Fig 1.2
+
+This fixes the issue of players hacking each other, and now instead of clients sending their positions to other clients (Fig 1.1), we can make it so clients only send their **inputs** to only the server, and not actually move the player yet, but rather wait for the server to process the inputs for them, then the server sends back the new position of the player to all clients and now clients can apply that position to said player.
+
+![Fig 1.3](./images/client-side-prediction-4.png)
+Fig 1.3
+
+That seems like a better approach already; we fixed the two main issues of P2P architecture.
+However, this still has one serious issue (and that issue will lead to other issues in the future):
+
+- Since players don’t immediately process movement after making an input, but instead they wait for the server to process it and send it back to the player, **there will be noticeable input delay**
+
+So this is where my journey with Client-side prediction actually starts.
+
+# Client-side Prediction
+So what even is Client-side prediction?
+Basically instead of waiting for the server to send the results of a player’s inputs and apply them, The player instantly applies them as soon as they make an input, but that leads to the following issue:
+
+- If you take in account lag and packet-loss, it’s certain that after a few seconds of moving around you will be out of sync from the server.
+
+This can be fixed by checking the results sent by the server and teleporting the player to those “server-correct” positions if the difference is too large. This is called **Server Reconciliation**
+
+# Client-side Prediction: My Attempts
+First thing I did was - of course - search for tutorials, and I did find [this tutorial](https://youtu.be/TFLD9HWOc2k) which gave me a pretty decent idea of how it works, but his implementation had a problem.
+
+So both the client and the server ran a fixed tick-rate loop, in each client tick it sends the input to the server and during that same tick it also applies (predicts) that input to get a new player position, and then in each server tick it applies the received input from the client and sends the new position back to them, whenever they receive it they can check for errors and if too large, reconciliate.
+
+The problem with that is the fact that movement becomes laggy since you don’t move the local player every frame, but every **client tick**, so your framerate could be 60 yet you are only moving 30 times a second, and of course, sending inputs to the server every single frame will be a huge load on the server, so there is really no way around a fixed-tick rate for the client.
+
+I spent a couple of days on this problem. The question is
+**How do we use a fixed-tick rate but also provide smooth movement every frame? 
+What kind of player controller would work smoothly even if it isn’t updated every frame?**
+
+So till now, I was using a **CharacterController** based player, which is a built-in Unity component for, well, controlling characters. It does not use any real physics simulations like **Rigidbodies**, it should also be updated every frame for it to be smooth, unlike Rigidbodies which update every **physics update.**
+
+## FixedUpdate() and Rigidbodies
+Luckily enough, Unity has its own fixed-tick loop that I could use to send inputs to the server, it runs once every 0.02 seconds (50 times a second), and this loop is where all Rigidbodies and physics-related stuff are updated, so if I just use a Rigidbody-based player controller, it seems like it should work perfectly.
+
+However, there is a huge problem with using Rigidbodies; they aren’t deterministic. Meaning that they have a bit of randomness and not every time you make the same input it will result in the same exact output.
+But we already came across this problem while dealing with packet-loss right? So our reconciliation code should take care of that and teleport our player to the correct position whenever that diversion happens.
+
+Unfortunately it wasn’t that simple in my case, for some reason it kept on constantly reconciliating which leads to teleporting the player to the “correct” position every server-tick, which again lead to laggy movement.
+
+### Kinematic Character Controllers
+The only way I found to move Rigidbodies in Unity without using forces and non-deterministic unity-provided functions, is using a Kinematic controller.
+
+But that does mean I will have to calculate the position, velocity, collisions and gravity all by myself, luckily enough there are already plenty of GitHub repositories that have done exactly that so I could just yoink one.
+
+After a day or so I got myself a working Kinematic Character Controller, and lo and behold: Buttery smooth Client-side prediction!
+
+
+# Summary
+So to summarize, I went through a lot of detours and tried a lot of techniques so here is the outline of the final implementation:
+
+- Every client FixedUpdate cycle: The inputs are sent to the server and the local player’s kinematic character controller is updated. 
+- Every server tick: The server reads those inputs and also updates said player’s kinematic character controller based on those inputs, they should result in the same position as the local client because we are using deterministic functions rather than the Unity-provided ones which aren't, then send the new position and rotation after the movement back to the client.
+- When the client receives those results: The client checks the difference between its locally-calculated position and the position that the server sent, if that difference is too large, set the position to the server position.
+
+That’s about it! That is the best way I could find to achieve Client-side Prediction and Server Reconciliation in Unity.
