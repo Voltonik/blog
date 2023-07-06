@@ -50,7 +50,7 @@ So let's break it down.
 - The fifth and sixth arguments are the Page and Usage IDs, The Microsoft docs have [this](https://learn.microsoft.com/en-us/windows-hardware/drivers/hid/hid-usages#usage-id) table which lists the Usage IDs for different device types, the Usage ID for keyboards is 0x06. So why am I using this weird 0xFF19 that is not even listed in the table you ask?<br/>
   Well when I tried 0x06 it resulted in my keyboard getting detected as four keyboards.
 
-![Detection](./images/client-side-prediction-1.png)
+![Detection](https://github.com/Voltonik/blog/blob/main/images/client-side-prediction-1.png?raw=true)
 
 So I checked the code for some of the supported keyboards and I found in some of them that magic 0xFF19 code that when I tried, it resulted in my keyboard getting detected once.
 
@@ -68,7 +68,7 @@ The plan is to understand how the keyboard's program sends the packets to my key
 
 I opened Wireshark and began listening to the packets send to and received from the keyboard whenever I changed the RGB color using the provided software.
 
-![Wireshark](./images/client-side-prediction-2.png)
+![Wireshark](https://github.com/Voltonik/blog/blob/main/images/client-side-prediction-2.png?raw=true)
 
 At first it was quite overwhelming, but eventually after analyzing the packets for some time, I noticed some specific packets that get sent and received every time I update the RGB colors.
 
@@ -78,7 +78,7 @@ First of all, it sends a specific packet at the beginning, I have no idea what t
 
 Now let's analyze that packet so we can implement it in our overridden "SetLedsDirect" method in the Controller class.
 
-![thing](./images/client-side-prediction-3.png)
+![thing](https://github.com/Voltonik/blog/blob/main/images/client-side-prediction-3.png?raw=true)
 
 So if you look at the section in the bottom left, we're only interested in the last two lines: the "wLength" and the "Data Fragment".
 The wLength is just the length of the packet which is 64, and the data fragment is the actual data being sent so as you can see on the right section the first two bits are 0x08 and 0x21 then the rest are just zeros.<br/>
@@ -100,7 +100,7 @@ hid_write(dev, thing, 64);
 
 Next packet to send is the RGB buffer, that buffer contains RGB values for every key, let's analyze it.
 
-![RGBbuffer](./images/client-side-prediction-4.png)
+![RGBbuffer](https://github.com/Voltonik/blog/blob/main/images/client-side-prediction-4.png?raw=true)
 
 The length of the packet is 267 and the data fragment being sent starts with 0x20 then it continues to include each of the R, G, and B channels, and for each single channel it has a value from 0x00 to 0xff for every key.
 So if I set every key to red you can see the first channel which is the R channel of the packet is 0xff while the rest after it are zeros.<br/>
