@@ -3,7 +3,7 @@ title: 'Implementing Client-side Prediction in Unity'
 date: 'Oct 6, 2022'
 flairs: ['Unity', 'Netcode']
 description: 'My attempts at developing client-side prediction & server reconciliation in Unity.'
-img: './images/.client-side-prediction.jpg'
+img: 'https://github.com/Voltonik/blog/blob/main/images/.client-side-prediction.jpg?raw=true'
 ---
 
 <h1><span className="text-primary-dark">.</span>Blog<span className="text-primary-dark">/</span>Implementing Client-side Prediction in Unity<span className="text-primary-dark">/</span></h1>
@@ -23,12 +23,12 @@ So I had a general idea of how game netcode works.
 
 In the last FPS game I made, I noticed that it is very easy to cheat since it used a Peer-to-Peer **“P2P"** architecture; which means there is one player that is the **host** of the lobby, and the other players are connected as **clients**, all connected to one another and to the host like so:
 
-![Fig 1.0](./images/client-side-prediction-3.png)
+![Fig 1.0](https://github.com/Voltonik/blog/blob/main/images/client-side-prediction-3.png?raw=true)
 Fig 1.0
 
 The way this works in games is that all players separately run their local games and communicate to each other to synchronize everything, so whenever “Player A” moves, they send their positions to everyone else in the lobby for them to synchronize the new position of “Player A”.
 
-![Fig 1.1](./images/client-side-prediction-2.png)
+![Fig 1.1](https://github.com/Voltonik/blog/blob/main/images/client-side-prediction-2.png?raw=true)
 Fig 1.1
 
 This architecture would have some serious issues in a competitive game however:
@@ -40,12 +40,12 @@ This architecture would have some serious issues in a competitive game however:
 
 One way to fix those issues is to use a Server-authoritative architecture instead, which means instead of having one player be host and others connect as clients, you would have a dedicated server act as the host and all players are connected to it as clients like so:
 
-![Fig 1.2](./images/client-side-prediction-1.png)
+![Fig 1.2](https://github.com/Voltonik/blog/blob/main/images/client-side-prediction-1.png?raw=true)
 Fig 1.2
 
 This fixes the issue of players hacking each other, and now instead of clients sending their positions to other clients (Fig 1.1), we can make it so clients only send their **inputs** to only the server, and not actually move the player yet, but rather wait for the server to process the inputs for them, then the server sends back the new position of the player to all clients and now clients can apply that position to said player.
 
-![Fig 1.3](./images/client-side-prediction-4.png)
+![Fig 1.3](https://github.com/Voltonik/blog/blob/main/images/client-side-prediction-4.png?raw=true)
 Fig 1.3
 
 That seems like a better approach already; we fixed the two main issues of P2P architecture.
