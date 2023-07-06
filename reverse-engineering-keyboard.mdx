@@ -163,7 +163,7 @@ Feature reports use the first bit of the data fragment as the ReportID, so as yo
 
 Next packet I also have no idea about, but it always gets sent right after the RGB packet and it looks like this:
 
-![thing2](./images/client-side-prediction-5.png)
+{/* ![thing2](./images/client-side-prediction-5.png) */}
 
 The length is 8, it is a GET_REPORT Request, and it has a ReportID of 22.
 
@@ -175,7 +175,7 @@ hid_get_feature_report(dev, thing2, 8);
 
 ### Forth Packet
 
-![thing3](./images/client-side-prediction-6.png)
+{/* ![thing3](./images/client-side-prediction-6.png) */}
 
 The forth packet is identical to the first one except for the second and fifth bits, so I just change those bits in the same buffer and send it.
 
@@ -190,7 +190,7 @@ hid_write(dev, thing, 64);
 
 ### Fifth Packet
 
-![thing3](./images/client-side-prediction-7.png)
+{/* ![thing3](./images/client-side-prediction-7.png) */}
 
 The fifth and final packet looks like this:
 
