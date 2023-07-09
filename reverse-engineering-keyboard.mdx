@@ -155,7 +155,7 @@ for(int i = 0; i < colors.size(); i++) {
 hid_send_feature_report(dev, RGBbuffer, 267);
 ```
 
-That packet is different from the first packet, it is a SET_REPORT Request, the first one is also marked as `SET_REPORT Request` on Wireshark but when I tried to send the first packet as a SET_REPORT Request it didn't work.<br/>
+That packet is different from the first packet, it is a `SET_REPORT Request`, the first one is also marked as `SET_REPORT Request` on Wireshark but when I tried to send the first packet as a SET_REPORT Request it didn't work.<br/>
 So for that packet I used the method `hid_send_feature_report` instead of `hid_write`.<br/>
 Feature reports use the first bit of the data fragment as the ReportID, so as you can see I initialize the RGBbuffer with 0x20 which is the ReportID of that packet.
 
