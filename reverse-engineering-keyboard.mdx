@@ -11,11 +11,11 @@ img: "https://github.com/Voltonik/blog/blob/main/images/.reverse-engineering-key
 So I recently bought the Darmoshark K5 mechanical keyboard, and it has per-key RGB lighting which is good but the provided software is very limited and I wanted more customizable effects.<br/>
 I came across OpenRGB which is a free and open-source software that allows users to control RGB lighting on a variety of devices.
 
-Unfortunately, not all devices are supported. One solution is to to reverse engineer the device and add support for it myself. In this guide, I will walk through the process of reverse engineering my keyboard and how I added support for it.
+Unfortunately, not all devices are supported. One solution is to reverse engineer the device and add support for it myself. In this guide, I will walk through the process of reverse engineering my keyboard and how I added support for it.
 
 # OpenRGB RGBController API
 
-OpenRGB has its own API for supporting devices, this API can be broken down into three components which I had to build.
+OpenRGB has its own API for supporting devices; this API can be broken down into three components which I had to build.
 
 - The Detector
 - The Controller
@@ -39,14 +39,14 @@ REGISTER_HID_DETECTOR_PU("Darmoshark K5", DetectDarmosharkK5, DARMOSHARK_K5_VID,
 So let's break it down.
 
 - The first argument is just the display name of the keyboard.
-- The second one is the method to actually get the hid device, that method was included in the API docs example, I just used it as is.
+- The second one is the method to actually get the HID, that method was included in the API docs example, I just used it as is.
 - The third and fourth arguments are the VID (Vendor ID) and PID (Product ID) of the keyboard, so I had to figure those out by just opening the Device Manager and in the details tab for my keyboard they were both provided.
 - The fifth and sixth arguments are the Page and Usage IDs, The Microsoft docs have [this](https://learn.microsoft.com/en-us/windows-hardware/drivers/hid/hid-usages#usage-id) table which lists the Usage IDs for different device types, the Usage ID for keyboards is 0x06. So why am I using this weird 0xFF19 that is not even listed in the table you ask?<br/>
   Well when I tried 0x06 it resulted in my keyboard getting detected as four keyboards.
 
 ![Detection](https://github.com/Voltonik/blog/blob/main/images/reverse-engineering-keyboard-1.png?raw=true)
 
-So I checked the code for some of the supported keyboards and I found in some of them that magic 0xFF19 code that when I tried, it resulted in my keyboard getting detected once.
+So I checked the code for some of the supported keyboards and I found that magic `0xFF19` code in some of them, that when I tried, it resulted in my keyboard getting detected once.
 
 ## Building The Controller
 
