@@ -18,6 +18,9 @@ My phone neither had a gyroscope sensor, nor a good display (but I ignored that 
 So the plan was to build an external gyroscope sensor and somehow make it communicate with SteamVR as if it was a normal VR headset, and just use the phone as a display by using a mirroring app that displays what's on the computer.
 
 # Building an external gyroscope sensor: Hardware
+
+![Hardware](https://github.com/Voltonik/blog/blob/main/images/diy-vr-3.png?raw=true)
+
 So the hardware part was pretty straightforward, just a GY-521 gyroscope sensor breakout board based on the MPU6050 sensor hooked to an Arduino Nano, and an HC-05 Bluetooth module. I also put a toggle switch to disconnect pin 0 (Arduino) from the Bluetooth module so I could program the Arduino or for when using a USB connection. (You can't use USB connection with pin 0 or 1 connected.)
 I built the circuit and soldered it onto a PCB and hot-glued it on top of the VR headset.
 
