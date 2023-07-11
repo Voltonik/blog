@@ -27,7 +27,7 @@ OpenRGB has its own API for supporting devices; this API can be broken down into
 
 So that was my first mission: Building the detector.
 
-Well, it's not really that hard in theory, the **REGISTER_DETECTOR** macros are used to register a detector function with the OpenRGB Resource Manager which is responsible for calling detector functions at detection time.
+Well, it's not really that hard in theory, the `REGISTER_DETECTOR` macros are used to register a detector function with the OpenRGB Resource Manager which is responsible for calling detector functions at detection time.
 The problem was finding out which macro to use. Because some macros resulted in my keyboard getting detected as 6 different keyboards and some didn't detect it at all.
 
 After some trial and error (and looking at the other already-supported devices and how they are doing it), this macro worked perfectly:
