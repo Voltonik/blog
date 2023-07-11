@@ -2,7 +2,7 @@
 title: "Reverse Engineering a Keyboard for OpenRGB"
 date: "Nov 12, 2022"
 flairs: ["Reverse Engineering"]
-description: "How I reverse engineered my keyboard driver to figure out how to control its RGB using OpenRGB."
+description: "How I reverse-engineered my keyboard driver to figure out how to control its RGB using OpenRGB."
 img: "https://github.com/Voltonik/blog/blob/main/images/.reverse-engineering-keyboard.png?raw=true"
 ---
 
@@ -27,8 +27,8 @@ OpenRGB has its own API for supporting devices; this API can be broken down into
 
 So that was my first mission: Building the detector.
 
-Well it's not really that hard in theory, the **REGISTER_DETECTOR** macros are used to register a detector function with the OpenRGB Resource Manager which is responsible for calling detector functions at detection time.
-The problem was finding out which macro to use. Because some macros resulted in my keyboard getting detected as 6 different keybaords and some didn't detect it at all.
+Well, it's not really that hard in theory, the **REGISTER_DETECTOR** macros are used to register a detector function with the OpenRGB Resource Manager which is responsible for calling detector functions at detection time.
+The problem was finding out which macro to use. Because some macros resulted in my keyboard getting detected as 6 different keyboards and some didn't detect it at all.
 
 After some trial and error (and looking at the other already-supported devices and how they are doing it), this macro worked perfectly:
 
@@ -39,10 +39,10 @@ REGISTER_HID_DETECTOR_PU("Darmoshark K5", DetectDarmosharkK5, DARMOSHARK_K5_VID,
 So let's break it down.
 
 - The first argument is just the display name of the keyboard.
-- The second one is the method to actually get the HID, that method was included in the API docs example, I just used it as is.
+- The second one is the method to actually get the HID, that method was included in the API docs example, and I just used it as is.
 - The third and fourth arguments are the VID (Vendor ID) and PID (Product ID) of the keyboard, so I had to figure those out by just opening the Device Manager and in the details tab for my keyboard they were both provided.
-- The fifth and sixth arguments are the Page and Usage IDs, The Microsoft docs have [this](https://learn.microsoft.com/en-us/windows-hardware/drivers/hid/hid-usages#usage-id) table which lists the Usage IDs for different device types, the Usage ID for keyboards is 0x06. So why am I using this weird 0xFF19 that is not even listed in the table you ask?<br/>
-  Well when I tried 0x06 it resulted in my keyboard getting detected as four keyboards.
+- The fifth and sixth arguments are the Page and Usage IDs, The Microsoft docs have [this](https://learn.microsoft.com/en-us/windows-hardware/drivers/hid/hid-usages#usage-id) table which lists the Usage IDs for different device types, the Usage ID for keyboards is `0x06`. So why am I using this weird `0xFF19` that is not even listed in the table you ask?<br/>
+  Well, when I tried `0x06` it resulted in my keyboard getting detected as four keyboards.
 
 ![Detection](https://github.com/Voltonik/blog/blob/main/images/reverse-engineering-keyboard-1.png?raw=true)
 
@@ -54,17 +54,17 @@ So I checked the code for some of the supported keyboards and I found that magic
 
 Here is where the fun begins.
 
-The plan is to understand how the keyboard's program sends the packets to my keyboard then emulate that same behaviour myself.
+The plan is to understand how the keyboard's program sends the packets to my keyboard and then emulate that same behavior myself.
 
 ### Wireshark
 
 > Wireshark is a free and open-source packet analyzer. It is used for network troubleshooting, analysis, software and communications protocol development, and education.
 
-I opened Wireshark and began listening to the packets send to and received from the keyboard whenever I changed the RGB color using the provided software.
+I opened Wireshark and began listening to the packets sent to and received from the keyboard whenever I changed the RGB color using the provided software.
 
 ![Wireshark](https://github.com/Voltonik/blog/blob/main/images/reverse-engineering-keyboard-2.png?raw=true)
 
-At first it was quite overwhelming, but eventually after analyzing the packets for some time, I noticed some specific packets that get sent and received every time I update the RGB colors.
+At first, it was quite overwhelming, but eventually after analyzing the packets for some time, I noticed some specific packets that get sent and received every time I update the RGB colors.
 
 ### First Packet
 
@@ -74,8 +74,8 @@ Now let's analyze that packet so we can implement it in our overridden "SetLedsD
 
 ![thing](https://github.com/Voltonik/blog/blob/main/images/reverse-engineering-keyboard-3.png?raw=true)
 
-So if you look at the section in the bottom left, we're only interested in the last two lines: the "wLength" and the "Data Fragment".
-The wLength is just the length of the packet which is 64, and the data fragment is the actual data being sent so as you can see on the right section the first two bits are 0x08 and 0x21 then the rest are just zeros.<br/>
+So if you look at the section in the bottom left, we're only interested in the last two lines: the `wLength` and the `Data Fragment`.
+The `wLength` is just the length of the packet which is 64, and the data fragment is the actual data being sent so as you can see in the right section the first two bits are 0x08 and 0x21 then the rest are just zeros.<br/>
 So in code, that's how it should look like:
 
 ```cpp
@@ -92,15 +92,15 @@ hid_write(dev, thing, 64);
 
 ### Second Packet
 
-Next packet to send is the RGB buffer, that buffer contains RGB values for every key, let's analyze it.
+The next packet to send is the RGB buffer, that buffer contains RGB values for every key, let's analyze it.
 
 ![RGBbuffer](https://github.com/Voltonik/blog/blob/main/images/reverse-engineering-keyboard-4.png?raw=true)
 
-The length of the packet is 267 and the data fragment being sent starts with 0x20 then it continues to include each of the R, G, and B channels, and for each single channel it has a value from 0x00 to 0xff for every key.
+The length of the packet is 267 and the data fragment being sent starts with `0x20` then it continues to include each of the R, G, and B channels, and for each single channel, it has a value from `0x00` to `0xff` for every key.
 So if I set every key to red you can see the first channel which is the R channel of the packet is 0xff while the rest after it are zeros.<br/>
 
-Let's implement that after our first packet.
-So the overridden method comes with the `colors` parameter which contains the colors you are required to set in the RGB packet, but before we can use that we need define each key bit in our packet, so we need to know which keys map to which bits, Fun!
+Let's implement that right after the code for our first packet.
+Actually, not yet, the overridden method comes with the `colors` parameter which contains the colors you are required to set in the RGB packet, but before we can use that we need to define each key bit in our packet, so we need to know which keys map to which bits, Fun!
 
 So I turned off the LEDs and started turning them on one by one to see which bit in the RGB packet gets turned on and recorded which keys map to which bit, ordered by the bits in the packet:
 
@@ -119,7 +119,7 @@ So I turned off the LEDs and started turning them on one by one to see which bit
 
 As you can see there are some question marks here, for some reason there were bits that just never got turned on so they don't seem to map to any key.
 
-Now I need to construct an array of those indices but order them by keys instead of bits (So it starts with the Esc key, 0, 1, 2, and so on..):
+Now I need to construct an array of those indices but order them by keys instead of their bit orders (So it starts with the Esc key, 0, 1, 2, and so on..):
 
 ```cpp
 #define NP 0xFF
@@ -177,7 +177,7 @@ hid_get_feature_report(dev, thing2, 8);
 
 ![thing3](https://github.com/Voltonik/blog/blob/main/images/reverse-engineering-keyboard-6.png?raw=true)
 
-The forth packet is identical to the first one except for the second and fifth bits, so I just change those bits in the same buffer and send it.
+The fourth packet is identical to the first one except for the second and fifth bits, so I just changed those bits in the same array and sent it.
 
 ```cpp
 // Edit things to be other things
@@ -218,7 +218,7 @@ hid_get_feature_report(dev, thing3, 8);
 > - Active mode index
 
 It's pretty straightforward, I just yoinked the code of some other supported keyboard and began editing it.<br/>
-I needed first to define a matrix map for the keys in order, including "unused keys" which are for keys bigger than one square like the space bar.
+I needed first to define a matrix map for the keys in order, including "unused keys" which are for keys bigger than one key unit like the space bar and the shift keys.
 
 ```cpp
 #define NA  0xFFFFFFFF
@@ -259,7 +259,7 @@ static const char *led_names[] =
 }
 ```
 
-In the constructor of that class I needed to provide some information:
+And in the constructor of that class, I needed to provide some information about the keyboard:
 
 ```cpp
 name                        = "Darmoshark K5 Keyboard";

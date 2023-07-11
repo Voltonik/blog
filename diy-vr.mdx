@@ -12,7 +12,7 @@ So I decided to build my own desktop VR headset that can run any SteamVR game on
 
 ![Plan](https://github.com/Voltonik/blog/blob/main/images/diy-vr-1.png?raw=true)
 
-So those are the three different scenarios I could have found myself into.
+So those are the three different scenarios I could have found myself in.
 
 My phone neither had a gyroscope sensor, nor a good display (but I ignored that because displays are expensive and would've needed modifications in the mobile VR headset I had, or even a custom 3D printed one.)
 So the plan was to build an external gyroscope sensor and somehow make it communicate with SteamVR as if it was a normal VR headset, and just use the phone as a display by using a mirroring app that displays what's on the computer.
@@ -21,7 +21,7 @@ So the plan was to build an external gyroscope sensor and somehow make it commun
 
 ![Hardware](https://github.com/Voltonik/blog/blob/main/images/diy-vr-3.png?raw=true)
 
-So the hardware part was pretty straightforward, just a GY-521 gyroscope sensor breakout board based on the MPU6050 sensor hooked to an Arduino Nano, and an HC-05 Bluetooth module. I also put a toggle switch to disconnect pin 0 (Arduino) from the Bluetooth module so I could program the Arduino or for when using a USB connection. (You can't use USB connection with pin 0 or 1 connected.)
+So the hardware part was pretty straightforward, just a GY-521 gyroscope sensor breakout board based on the MPU6050 sensor hooked to an Arduino Nano, and an HC-05 Bluetooth module. I also put a toggle switch to disconnect pin 0 (Arduino) from the Bluetooth module so I could program the Arduino or when using a USB connection. (You can't use USB connection with pin 0 or 1 connected.)
 I built the circuit and soldered it onto a PCB and hot-glued it on top of the VR headset.
 
 As for the display I just used my phone to mirror my computer using [Spacedesk](https://www.spacedesk.net/). A better approach if I had been more serious about this would've been to get two (or just one) displays and mod them into the VR headset, but that would have made things much more complicated.
@@ -33,7 +33,7 @@ Here is where it gets interesting, so the plan is to fool SteamVR into thinking 
 First of all, I needed to program the sensor itself to just dump raw yaw, pitch, and roll data into the serial monitor, there was a built-in example that came with the MPU6050 library to do exactly that.
 
 ## [FreePIE](http://andersmalmgren.github.io/FreePIE/)
-> **FreePIE** (Programmable Input Emulator) is a application for bridging and emulating input devices. It has applications primarily in video gaming but can also be used for VR interaction.
+> **FreePIE** (Programmable Input Emulator) is an application for bridging and emulating input devices. It has applications primarily in video gaming but can also be used for VR interaction.
 
 Sounds perfect, right?
 
@@ -52,7 +52,7 @@ OpenVR does support Arduino as an input tracker directly, so using FreePIE isn't
 
 # Hand Tracking
 Now that I had a working desktop VR headset, I could look around in any SteamVR game, which was pretty fun by itself, but I wanted to play an actual game and all VR games required VR controllers.
-The easy way would have been to use VRidge on another phone that has a gyroscope sensor, or just get an actual VR controller, or even build my own controllers using the same method as the headset. But I couldn't do any of those things.
+The easy way would have been to use VRidge on another phone that has a gyroscope sensor, just get an actual VR controller, or even build my own controllers using the same method as the headset. But I couldn't do any of those things.
 
 ## [Driver4VR](https://www.driver4vr.com/)
 > Body Tracking solutions for VR, Positional Tracking and controller emulation, Utilities
@@ -69,7 +69,7 @@ I tried that and it worked pretty well but there were a couple of issues:
 ## Using Two Mice
 Another solution - and what has worked best for me - was using two mice, but even that had issues:
 
-- Controlling them was a little difficult at first given that I'm using a two-dimensional input device two control a three-dimensional space in game, but it was good enough for me.
+- Controlling them was a little difficult at first given that I'm using a two-dimensional input device two control a three-dimensional space in-game, but it was good enough for me.
 - I couldn't look behind me and move my hands at the same time; I was basically locked in place and I had to sit.
 
 But despite that, I was pretty happy with the results.
@@ -78,9 +78,9 @@ But despite that, I was pretty happy with the results.
 My VR experience using the methods documented had a couple of issues:
 
 - As mentioned, my phone display was pretty bad, it was small, had low resolution, AND it was cracked. So that really put me off.
-- Surprise, surprise! Bluetooth is slow! Who would've thought? Definitely not 13 year old me. So I had to use wired connection, which wasn't actually bad, I used a long cable and it didn't bother me at all.
-- Because I used the MPU6050 gyroscope sensor, it only read my head's rotations, not movements, so if I were to move my head forwards it wont do so in game, unlike proper desktop VR headsets.
+- Surprise, surprise! Bluetooth is slow! Who would've thought? Definitely not 13-year-old me. So I had to use wired connection, which wasn't actually bad, I used a long cable and it didn't bother me at all.
+- Because I used the MPU6050 gyroscope sensor, it only read my head's rotations, not movements, so if I were to move my head forward it won't do so in-game, unlike proper desktop VR headsets.
 - Couldn't play any fast-paced games like Beat Saber because controlling hands with two mice was difficult.
 - The mobile VR headset I used got uncomfortable after about 30 minutes of use, and the lenses weren't big enough nor had the best focal length to be immersive.
 
-But nevertheless, It was a very fun process and I learnt a ton by going through those challenges.
+But nevertheless, It was a very fun process and I learned a ton by going through those challenges.
