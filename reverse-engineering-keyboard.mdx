@@ -66,7 +66,7 @@ I opened Wireshark and began listening to the packets sent to and received from 
 
 At first, it was quite overwhelming, but eventually after analyzing the packets for some time, I noticed some specific packets that get sent and received every time I update the RGB colors.
 
-### First Packet
+### 1.First Packet
 
 First of all, it sends a specific packet at the beginning, I have no idea what that packet does, probably just prepares the keyboard to receive a new input or something.
 
@@ -90,7 +90,7 @@ Then we can just write that packet like so:
 hid_write(dev, thing, 64);
 ```
 
-### Second Packet
+### 2.Second Packet
 
 The next packet to send is the RGB buffer, that buffer contains RGB values for every key, let's analyze it.
 
@@ -159,7 +159,7 @@ That packet is different from the first packet, it is a `SET_REPORT Request`, th
 So for that packet I used the method `hid_send_feature_report` instead of `hid_write`.<br/>
 Feature reports use the first bit of the data fragment as the ReportID, so as you can see I initialize the RGBbuffer with 0x20 which is the ReportID of that packet.
 
-### Third Packet
+### 3.Third Packet
 
 Next packet I also have no idea about, but it always gets sent right after the RGB packet and it looks like this:
 
@@ -173,7 +173,7 @@ uint8_t thing2[9] = { 22, 0xa1, 0x01, 0x16, 0x03, 0x00, 0x00, 0x02, 0x00 };
 hid_get_feature_report(dev, thing2, 8);
 ```
 
-### Forth Packet
+### 4.Forth Packet
 
 ![thing3](https://github.com/Voltonik/blog/blob/main/images/reverse-engineering-keyboard-6.png?raw=true)
 
@@ -188,7 +188,7 @@ thing[4] = 0x02;
 hid_write(dev, thing, 64);
 ```
 
-### Fifth Packet
+### 5.Fifth Packet
 
 ![thing3](https://github.com/Voltonik/blog/blob/main/images/reverse-engineering-keyboard-7.png?raw=true)
 
