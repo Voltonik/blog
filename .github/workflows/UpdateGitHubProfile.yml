@@ -2,7 +2,16 @@ name: Update GitHub Profile Blogs
 on: push
 
 jobs:
-
+  revalidate_website:
+    name: Revalidate Website
+    runs-on: ubuntu-latest
+    steps:
+      - name: Revalidate Website
+        run: |
+          curl -H "Secret: ${{ secrets.REVALIDATION_KEY }}" \
+          --request POST \
+          https://www.markasaad.dev/api/revalidate
+  
   dispatch:
     name: Dispatch
     env:
