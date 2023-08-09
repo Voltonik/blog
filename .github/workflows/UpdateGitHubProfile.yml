@@ -1,16 +1,9 @@
 name: Update GitHub Profile Blogs
 on: push
 
-jobs:
-  revalidate_website:
-    name: Revalidate Website
-    runs-on: ubuntu-latest
-    steps:
-      - name: Revalidate Website
-        run: curl https://www.markasaad.dev/api/revalidate?secret=${{ secrets.REVALIDATION_KEY }}
-  
+jobs:  
   dispatch:
-    name: Dispatch
+    name: Update GitHub Profile Blog & Revalidate website
     env:
       PACKAGES_TO_UPGRADE: ${{ needs.run_publish.outputs.packages }}
     runs-on: ubuntu-latest
@@ -19,6 +12,9 @@ jobs:
         repo: ['Voltonik/Voltonik']
     timeout-minutes: 5
     steps:
+      - name: Revalidate Website
+        run: curl https://www.markasaad.dev/api/revalidate?secret=${{ secrets.REVALIDATION_KEY }}
+        
       - name: Dispatch to workflows
         run: |
             curl -H "Accept: application/vnd.github.everest-preview+json" \
