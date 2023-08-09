@@ -4,6 +4,7 @@ on: push
 jobs:
 
   dispatch:
+    permissions: write-all
     name: Dispatch
     env:
       PACKAGES_TO_UPGRADE: ${{ needs.run_publish.outputs.packages }}
