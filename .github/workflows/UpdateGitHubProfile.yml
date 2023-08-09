@@ -4,7 +4,6 @@ on: push
 jobs:
 
   dispatch:
-    permissions: write-all
     name: Dispatch
     env:
       PACKAGES_TO_UPGRADE: ${{ needs.run_publish.outputs.packages }}
@@ -17,6 +16,6 @@ jobs:
       - name: Dispatch to workflows
         run: |
             curl -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.AUTH_TOKEN }}" \
             --request POST \
             --data '{"event_type": "blog_update", "client_payload": { }}' https://api.github.com/repos/${{ matrix.repo }}/dispatches
