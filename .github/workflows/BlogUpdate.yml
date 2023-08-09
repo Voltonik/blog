@@ -1,9 +1,9 @@
-name: Update GitHub Profile Blogs
+name: Update Blog for website and github profile
 on: push
 
 jobs:  
   dispatch:
-    name: Update GitHub Profile Blog & Revalidate website
+    name: Update Blog for website and github profile
     env:
       PACKAGES_TO_UPGRADE: ${{ needs.run_publish.outputs.packages }}
     runs-on: ubuntu-latest
